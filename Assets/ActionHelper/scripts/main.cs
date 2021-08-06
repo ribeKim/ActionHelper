@@ -52,7 +52,7 @@ namespace ActionHelper.scripts
             _idleAnimation =
                 EditorGUILayout.ObjectField("IDLE", _idleAnimation, typeof(AnimationClip), false) as AnimationClip;
             _conditionedAnimation =
-                EditorGUILayout.ObjectField(_conditionedAnimation.name, _conditionedAnimation, typeof(AnimationClip),
+                EditorGUILayout.ObjectField("Condition", _conditionedAnimation, typeof(AnimationClip),
                     false) as AnimationClip;
 
             if (GUILayout.Button("Save")) AppendLayerWithParameter(_idleAnimation, _conditionedAnimation);
