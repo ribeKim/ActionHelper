@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Animations;
@@ -10,29 +9,27 @@ namespace ActionHelper.scripts
     public class Main : EditorWindow
     {
         private const int VRC_MAX_INT = 255;
-        private AnimatorController controller;
-        private AnimationClip animation;
         [SerializeField] private List<AnimationClip> animations;
-        private int tab;
-        private int index = 0;
-
-        [MenuItem("ActionHelper/Main")]
-        static void Init()
-        {
-            var window = (Main) GetWindow(typeof(Main));
-            window.Show();
-        }
+        private AnimatorController _controller;
+        private AnimationClip _conditionedAnimation;
+        private AnimationClip _idleAnimation;
+        private string _layerName;
+        private string _parameterName;
+        private Vector2 _scroll;
+        private int _tab;
 
         private void OnGUI()
         {
             GUILayout.Label("Animator", EditorStyles.boldLabel);
-            controller =
-                EditorGUILayout.ObjectField("Animator", controller, typeof(AnimatorController), false) as
+            _controller =
+                EditorGUILayout.ObjectField("Animator", _controller, typeof(AnimatorController), false) as
                     AnimatorController;
             GUILayout.Label("Base Settings", EditorStyles.boldLabel);
-            tab = GUILayout.Toolbar(tab, new[] {"Single Toggle", "Multiple Toggle"});
+            _tab = GUILayout.Toolbar(_tab, new[] {"Single Toggle", "Multiple Toggle"});
 
-            switch (tab)
+            _layerName = EditorGUILayout.TextField("Layer Name", _layerName);
+            _parameterName = EditorGUILayout.TextField("Parameter Name", _parameterName);
+            switch (_tab)
             {
                 case 0:
                     SingleToggle();
@@ -43,31 +40,106 @@ namespace ActionHelper.scripts
             }
         }
 
+        [MenuItem("ActionHelper/Main")]
+        private static void Init()
+        {
+            var window = (Main) GetWindow(typeof(Main));
+            window.Show();
+        }
+
         private void SingleToggle()
         {
-            EditorGUILayout.TextField("Layer Name", "");
-            EditorGUILayout.TextField("Parameter Name", "");
-            animation =
-                EditorGUILayout.ObjectField("Animation", animation, typeof(AnimationClip), false) as AnimationClip;
+            _idleAnimation =
+                EditorGUILayout.ObjectField("IDLE", _idleAnimation, typeof(AnimationClip), false) as AnimationClip;
+            _conditionedAnimation =
+                EditorGUILayout.ObjectField(_conditionedAnimation.name, _conditionedAnimation, typeof(AnimationClip),
+                    false) as AnimationClip;
+
+            if (GUILayout.Button("Save")) AppendLayerWithParameter(_idleAnimation, _conditionedAnimation);
         }
 
         private void MultipleToggle()
         {
-            EditorGUILayout.TextField("Layer Name", "");
-            EditorGUILayout.TextField("Parameter Name", "");
-            
             ScriptableObject target = this;
-            SerializedObject so = new SerializedObject(target);
-            SerializedProperty stringsProperty = so.FindProperty("animations");
+            var so = new SerializedObject(target);
+            var stringsProperty = so.FindProperty("animations");
 
-            // if (stringsProperty.arraySize > VRC_MAX_INT) stringsProperty.arraySize = VRC_MAX_INT;
+            if (stringsProperty.arraySize > VRC_MAX_INT) stringsProperty.arraySize = VRC_MAX_INT;
+
+            _scroll = EditorGUILayout.BeginScrollView(_scroll, GUILayout.MaxHeight(400));
             EditorGUILayout.PropertyField(stringsProperty, true);
+            EditorGUILayout.EndScrollView();
             so.ApplyModifiedProperties();
 
-            // animations.Add(EditorGUILayout.ObjectField($"IDLE", animations[index++], typeof(AnimationClip), false) as AnimationClip);
 
-            // if (!GUILayout.Button("Add Animation")) return;
-            // animations.Add(EditorGUILayout.ObjectField($"IDLE", null, typeof(AnimationClip), false) as AnimationClip);
+            if (GUILayout.Button("Save")) AppendLayerWithParameter(animations);
+        }
+
+        private void AppendLayerWithParameter(Motion idleClip, Motion conditionedClip)
+        {
+            if (CheckCondition()) return;
+            AddParameterAndLayer(AnimatorControllerParameterType.Bool);
+
+            var firstState = _controller.layers.Last().stateMachine.AddState("IDLE", new Vector3(400, 0, 0));
+            var lastState = _controller.layers.Last().stateMachine.AddState("Condition", new Vector3(400, 100, 0));
+
+            firstState.AddTransition(lastState)
+                .AddCondition(AnimatorConditionMode.If, 0, _parameterName);
+            lastState.AddTransition(firstState)
+                .AddCondition(AnimatorConditionMode.IfNot, 0, _parameterName);
+
+            firstState.motion = idleClip;
+            lastState.motion = conditionedClip;
+        }
+
+        private void AppendLayerWithParameter(IList<AnimationClip> clips)
+        {
+            if (CheckCondition()) return;
+            AddParameterAndLayer(AnimatorControllerParameterType.Int);
+
+            foreach (var animationClip in clips)
+            {
+                var index = clips.IndexOf(animationClip);
+                var stateMachine = _controller.layers.Last().stateMachine;
+                var state = _controller.layers.Last().stateMachine
+                    .AddState(animationClip.name, new Vector3(400, index * 100, 0));
+                stateMachine.AddAnyStateTransition(state)
+                    .AddCondition(AnimatorConditionMode.Equals, index, _parameterName);
+                state.motion = animationClip;
+            }
+        }
+
+        private bool CheckCondition()
+        {
+            if (!_controller)
+            {
+                Alert("Requirement: Controller");
+                return true;
+            }
+
+            if (string.IsNullOrEmpty(_parameterName) || string.IsNullOrEmpty(_layerName))
+            {
+                Alert("Enter ParameterName or LayerName");
+                return true;
+            }
+
+            if (_controller.parameters.All(x => x.name != _parameterName)) return false;
+            Alert("Duplicated ParameterName");
+            return true;
+        }
+
+        private void AddParameterAndLayer(AnimatorControllerParameterType type)
+        {
+            _controller.AddParameter(_parameterName, type);
+            _controller.AddLayer(_layerName);
+            var layers = _controller.layers;
+            layers.Last().defaultWeight = 1;
+            _controller.layers = layers;
+        }
+
+        private void Alert(string content)
+        {
+            EditorUtility.DisplayDialog("Alert", content, "Ok");
         }
     }
 }
