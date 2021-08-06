@@ -20,15 +20,15 @@ namespace ActionHelper.scripts
 
         private void OnGUI()
         {
-            GUILayout.Label("Animator", EditorStyles.boldLabel);
+            GUILayout.Label("Base Settings", EditorStyles.boldLabel);
             _controller =
                 EditorGUILayout.ObjectField("Animator", _controller, typeof(AnimatorController), false) as
                     AnimatorController;
-            GUILayout.Label("Base Settings", EditorStyles.boldLabel);
-            _tab = GUILayout.Toolbar(_tab, new[] {"Single Toggle", "Multiple Toggle"});
-
             _layerName = EditorGUILayout.TextField("Layer Name", _layerName);
             _parameterName = EditorGUILayout.TextField("Parameter Name", _parameterName);
+            GUILayout.Label("Modes", EditorStyles.boldLabel);
+            _tab = GUILayout.Toolbar(_tab, new[] {"Single Toggle", "Multiple Toggle"});
+
             switch (_tab)
             {
                 case 0:
