@@ -1,11 +1,10 @@
-﻿#if UNITY_EDITOR
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 
-namespace ActionHelper.scripts
+namespace ActionHelper.scripts.Editor
 {
     public class Main : EditorWindow
     {
@@ -144,4 +143,3 @@ namespace ActionHelper.scripts
         }
     }
 }
-#endif
