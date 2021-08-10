@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Unity.EditorCoroutines.Editor;
 using UnityEditor;
@@ -8,19 +7,20 @@ using UnityEngine;
 
 namespace ActionHelper.scripts.Editor
 {
-    public class Main : EditorWindow
+    public partial class Main : EditorWindow
     {
         [SerializeField] private List<Entity> entities;
         private AnimatorController _controller;
         private AnimationClip _conditionedAnimation;
         private AnimationClip _idleAnimation;
         private Vector2 _scroll;
+        private GUIStyle _boxNormal;
+        private GUIStyle _boxSelected;
         private string _layerName;
         private string _parameterName;
         private int _tab;
         private int _selected = Const.DEFAULT_SELECTED;
-        private GUIStyle _boxNormal;
-        private GUIStyle _boxSelected;
+        private bool _optional;
 
         [MenuItem("ActionHelper/Main")]
         private static void Init()
@@ -43,6 +43,11 @@ namespace ActionHelper.scripts.Editor
                 Const.ANIMATOR, _controller, typeof(AnimatorController), false) as AnimatorController;
             _layerName = EditorGUILayout.TextField(Const.LAYER_NAME, _layerName);
             _parameterName = EditorGUILayout.TextField(Const.PARAMTER_NAME, _parameterName);
+
+            _optional = GUILayout.Toggle(_optional, Const.OPTIONAL);
+
+            if (_optional) Optional(_tab);
+            
             GUILayout.Label(Const.MODES, EditorStyles.boldLabel);
             _tab = GUILayout.Toolbar(_tab, Const.MENUS);
             
@@ -145,6 +150,10 @@ namespace ActionHelper.scripts.Editor
         {
             if (CheckCondition()) return;
             AddParameterAndLayer(AnimatorControllerParameterType.Bool);
+            
+            #if VRC_SDK_VRCSDK3
+            CreateVrcParameters(VRC.SDK3.Avatars.ScriptableObjects.VRCExpressionParameters.ValueType.Bool);
+            #endif
 
             var stateMachine = StateMachinePosition();
             var firstState = stateMachine.AddState(Const.IDLE, new Vector3(400, 0));
@@ -163,6 +172,10 @@ namespace ActionHelper.scripts.Editor
         {
             if (CheckCondition()) return;
             AddParameterAndLayer(AnimatorControllerParameterType.Int);
+            
+            #if VRC_SDK_VRCSDK3
+            CreateVrcParameters(VRC.SDK3.Avatars.ScriptableObjects.VRCExpressionParameters.ValueType.Int);
+            #endif
             
             for (var i = 0; i < entities.Count; i++)
             {
