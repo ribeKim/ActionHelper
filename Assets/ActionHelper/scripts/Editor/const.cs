@@ -22,6 +22,7 @@
         public const string REMOVE = "-";
         public const string REMOVE_ALL = "Clear";
         public const string OPTIONAL = "option(Experimental)";
+        public const string VRC_PARAMETER = "VRC Parameter";
         public const float UPDATE_TIMER = 5 * 60;
         public const int VRC_MAX_INT = 255;
         public const int DEFAULT_SELECTED = -1;

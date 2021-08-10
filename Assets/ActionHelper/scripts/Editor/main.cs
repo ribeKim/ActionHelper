@@ -46,7 +46,7 @@ namespace ActionHelper.scripts.Editor
 
             _optional = GUILayout.Toggle(_optional, Const.OPTIONAL);
 
-            if (_optional) Optional(_tab);
+            if (_optional) Optional();
             
             GUILayout.Label(Const.MODES, EditorStyles.boldLabel);
             _tab = GUILayout.Toolbar(_tab, Const.MENUS);
