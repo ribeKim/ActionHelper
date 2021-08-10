@@ -8,7 +8,7 @@ namespace ActionHelper.scripts.Editor
 {
     public class Update
     {
-        private const string Version = "2021.08.10_1";
+        private const string Version = "2021.08.10_2";
         public static bool IsUpdated { get; set; }
 
         public static IEnumerator Check()
