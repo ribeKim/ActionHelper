@@ -5,7 +5,8 @@
         public static readonly string[] MENUS = { "Single Toggle", "Multiple Toggle" };
         public const string MSG_REQUIREMENTS = "Requirement: Controller";
         public const string MSG_ENTER_PARAMETER_NAME_OR_LAYER_NAME = "Enter ParameterName or LayerName";
-        public const string MSG_DUPLICATED = "Duplicated ParameterName";
+        public const string MSG_DUPLICATED = "Duplicated ParameterName or LayerName";
+        public const string MSG_DUPLICATED_ON_VRCPARAMETER = "Duplicated ParameterName: {0}";
         public const string MSG_UPDATE_REQUIRED = "Please Update ActionHelper";
         public const string BASE_SETTINGS = "Base Settings";
         public const string ANIMATOR = "Animator";
