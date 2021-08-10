@@ -149,11 +149,17 @@ namespace ActionHelper.scripts.Editor
         private void AppendLayerWithParameter(Motion idleClip, Motion conditionedClip)
         {
             if (CheckCondition()) return;
-            AddParameterAndLayer(AnimatorControllerParameterType.Bool);
             
             #if VRC_SDK_VRCSDK3
-            CreateVrcParameters(VRC.SDK3.Avatars.ScriptableObjects.VRCExpressionParameters.ValueType.Bool);
+            if (_optional)
+            {
+                var result = CreateVrcParameters(VRC.SDK3.Avatars.ScriptableObjects.VRCExpressionParameters.ValueType.Bool);
+                if (!result) return;
+            }
             #endif
+            
+            AddParameterAndLayer(AnimatorControllerParameterType.Bool);
+            
 
             var stateMachine = StateMachinePosition();
             var firstState = stateMachine.AddState(Const.IDLE, new Vector3(400, 0));
@@ -171,11 +177,17 @@ namespace ActionHelper.scripts.Editor
         private void AppendLayerWithParameter()
         {
             if (CheckCondition()) return;
-            AddParameterAndLayer(AnimatorControllerParameterType.Int);
             
             #if VRC_SDK_VRCSDK3
-            CreateVrcParameters(VRC.SDK3.Avatars.ScriptableObjects.VRCExpressionParameters.ValueType.Int);
+            if (_optional)
+            {
+                var result = CreateVrcParameters(VRC.SDK3.Avatars.ScriptableObjects.VRCExpressionParameters.ValueType.Int);
+                if (!result) return;
+            }
             #endif
+            
+            AddParameterAndLayer(AnimatorControllerParameterType.Int);
+            
             
             for (var i = 0; i < entities.Count; i++)
             {

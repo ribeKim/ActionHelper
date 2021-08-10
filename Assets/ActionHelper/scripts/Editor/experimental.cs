@@ -18,13 +18,21 @@ namespace ActionHelper.scripts.Editor
         }
         
 
-        private void CreateVrcParameters(VRCExpressionParameters.ValueType type)
+        private bool CreateVrcParameters(VRCExpressionParameters.ValueType type)
         {
+            if (_expression.parameters.Any(p => p.name == _parameterName))
+            {
+                Alert(string.Format(Const.MSG_DUPLICATED_ON_VRCPARAMETER, _expression.name));
+                return false;
+            }
+            
             var item = new VRCExpressionParameters.Parameter();
             item.name = _parameterName;
             item.valueType = type;
             
             _expression.parameters = _expression.parameters.Append(item).ToArray();
+
+            return true;
         }
     }
 }
